@@ -1,15 +1,14 @@
-import { BaseEntity, Column, Entity, JoinTable, PrimaryGeneratedColumn } from "typeorm";
-import { ManyToMany } from "typeorm/browser";
-import { Product } from "./Product.js";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from "typeorm";
+import { Product } from "./Product";
 
 @Entity()
 export class Category {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  name: string;
+    @Column()
+    name: string;
 
-  @ManyToMany(() => Product, product => product.categories)
-  products: Product[];
+    @ManyToMany(() => Product, product => product.categories)
+    products: Product[];
 }

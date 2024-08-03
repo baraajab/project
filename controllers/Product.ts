@@ -1,33 +1,40 @@
+import { Request, Response, NextFunction } from "express";
+import { Product } from "../db/entities/Product";
+import { getRepository } from "typeorm";
 
-import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
-import { Product } from '../db/entities/Product.js';
-
-export const createProduct = async (req: Request, res: Response) => {
-  const productRepository = getRepository(Product);
-  const { name, price, shop } = req.body;
-
-  if (!name || !price) {
-    return res.status(400).json({ message: 'Name and price are required.' });
-  }
-
-  const product = productRepository.create({ name, price, shop });
-  await productRepository.save(product);
-  return res.status(201).json(product);
+export const createProduct = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { name, price, shopId, categoryIds } = req.body;
+        const productRepo = getRepository(Product);
+        const product = new Product();
+        product.name = name;
+        product.price = price;
+        product.shop = shopId;
+        product.categories = categoryIds;
+        await productRepo.save(product);
+        res.status(201).json(product);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const getAllProducts = async (req: Request, res: Response) => {
-  const productRepository = getRepository(Product);
-  const products = await productRepository.find();
-  res.json(products);
+export const getAllProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const products = await getRepository(Product).find();
+        res.status(200).json(products);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const getProductById = async (req: Request, res: Response) => {
-  const productRepository = getRepository(Product);
-  const product = await productRepository.find()
-  if (product) {
-    res.json(product);
-  } else {
-    res.status(404).json({ message: 'Product not found' });
-  }
+export const getProductById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const product = await getRepository(Product).findOne(req.params.id);
+        if (!product) {
+            return res.status(404).json({ message: "Product not found" });
+        }
+        res.status(200).json(product);
+    } catch (error) {
+        next(error);
+    }
 };

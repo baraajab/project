@@ -1,33 +1,39 @@
-import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
-import { Shop } from '../db/entities/Shop.js';
+import { Request, Response, NextFunction } from "express";
+import { Shop } from "../db/entities/Shop";
+import { getRepository } from "typeorm";
 
-export const createShop = async (req: Request, res: Response) => {
-  const shopRepository = getRepository(Shop);
-  const { shopName, email, password } = req.body;
-
-  if (!shopName || !email || !password) {
-    return res.status(400).json({ message: 'All fields are required.' });
-  }
-
-  const shop = shopRepository.create({ shopName, email, password });
- 
-  await shopRepository.save(shop);
-  return res.status(201).json(shop);
+export const createShop = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { shopName, email, password } = req.body;
+        const shopRepo = getRepository(Shop);
+        const shop = new Shop();
+        shop.shopName = shopName;
+        shop.email = email;
+        shop.password = password;
+        await shopRepo.save(shop);
+        res.status(201).json(shop);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const getAllShops = async (req: Request, res: Response) => {
-  const shopRepository = getRepository(Shop);
-  const shops = await shopRepository.find({ relations: ['products'] });
-  res.json(shops);
+export const getShopById = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const shop = await getRepository(Shop).findOne(req.params.id);
+        if (!shop) {
+            return res.status(404).json({ message: "Shop not found" });
+        }
+        res.status(200).json(shop);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const getShopById = async (req: Request, res: Response) => {
-  const shopRepository = getRepository(Shop);
-  const shop = await shopRepository.find();
-  if (shop) {
-    res.json(shop);
-  } else {
-    res.status(404).json({ message: 'Shop not found' });
-  }
+export const getAllShopsWithProducts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const shops = await getRepository(Shop).find({ relations: ["products"] });
+        res.status(200).json(shops);
+    } catch (error) {
+        next(error);
+    }
 };

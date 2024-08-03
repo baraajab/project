@@ -1,22 +1,22 @@
-import { BaseEntity, Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import { Category } from "./Category.js";
-import { Shop } from "./Shop.js";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable } from "typeorm";
+import { Shop } from "./Shop";
+import { Category } from "./Category";
 
 @Entity()
 export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
+    @PrimaryGeneratedColumn()
+    id: number;
 
-  @Column()
-  name: string;
+    @Column()
+    name: string;
 
-  @Column('decimal')
-  price: number;
+    @Column('decimal')
+    price: number;
 
-  @ManyToOne(() => Shop, shop => shop.products)
-  shop: Shop;
+    @ManyToOne(() => Shop, shop => shop.products)
+    shop: Shop;
 
-  @ManyToMany(() => Category)
-  @JoinTable()
-  categories: Category[];
+    @ManyToMany(() => Category)
+    @JoinTable()
+    categories: Category[];
 }

@@ -1,24 +1,25 @@
+import { Request, Response, NextFunction } from "express";
+import { Category } from "../db/entities/Category";
+import { getRepository } from "typeorm";
 
-
-import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
-import { Category } from '../db/entities/Category.js';
-
-export const createCategory = async (req: Request, res: Response) => {
-  const categoryRepository = getRepository(Category);
-  const { name } = req.body;
-
-  if (!name) {
-    return res.status(400).json({ message: 'Name is required.' });
-  }
-
-  const category = categoryRepository.create({ name });
-  await categoryRepository.save(category);
-  return res.status(201).json(category);
+export const createCategory = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { name } = req.body;
+        const categoryRepo = getRepository(Category);
+        const category = new Category();
+        category.name = name;
+        await categoryRepo.save(category);
+        res.status(201).json(category);
+    } catch (error) {
+        next(error);
+    }
 };
 
-export const getAllCategories = async (req: Request, res: Response) => {
-  const categoryRepository = getRepository(Category);
-  const categories = await categoryRepository.find();
-  res.json(categories);
+export const getAllCategories = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const categories = await getRepository(Category).find();
+        res.status(200).json(categories);
+    } catch (error) {
+        next(error);
+    }
 };
